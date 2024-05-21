@@ -36,7 +36,7 @@ PROFILE=$2
 REGION=$3
 # Get the corresponding hub from the associative array
 HUB="${REGION_TO_HUB[$REGION]}"
-ACTION=${@:4},
+ACTION=${@:4}
 
 if [ "$ACTION" = "destroy -auto-approve" ]; then
   ./$SCRIPT $PROFILE $REGION common/monitoring/ecs-monitoring-service $ACTION
