@@ -5,6 +5,20 @@ set -e
 # Load properties file
 source 'wrapper.properties'
 
+# Declare an associative array
+declare -A REGION_TO_HUB=(
+  ["eu-central-1"]="emea"
+  ["us-east-1"]="us"
+  ["cn-north-1"]="cn"
+)
+
+SCRIPT=$1
+PROFILE=$2
+REGION=$3
+# Get the corresponding hub from the associative array
+HUB="${REGION_TO_HUB[$REGION]}"
+ACTION=${@:4}
+
 TF_STATE_BUCKET="tf-state-${PROFILE}-${REGION}-${UNIQUE_BUCKET_STRING}"
 
 empty_tfstate_bucket() {
@@ -60,21 +74,8 @@ fi
 # remove any state from previous runs (possibly on different environments)
 rm common/*/*/.terraform/terraform.tfstate || true
 
-# Declare an associative array
-declare -A REGION_TO_HUB=(
-  ["eu-central-1"]="emea"
-  ["us-east-1"]="us"
-  ["cn-north-1"]="cn"
-)
-
-SCRIPT=$1
-PROFILE=$2
-REGION=$3
-# Get the corresponding hub from the associative array
-HUB="${REGION_TO_HUB[$REGION]}"
-ACTION=${@:4}
-
 if [ "$ACTION" = "destroy -auto-approve" ]; then
+  echo "Checking if $TF_STATE_BUCKET exists..."
   if aws s3api head-bucket --bucket $TF_STATE_BUCKET --profile $PROFILE --region $REGION 2>/dev/null; then
     ./$SCRIPT $PROFILE $REGION common/services/measurements-dynamodb $ACTION
     delete_secrets_manager
