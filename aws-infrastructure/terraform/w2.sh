@@ -90,6 +90,11 @@ check_path_override() {
 
 }
 
+run_terraform_command() {
+  echo "Running terraform command: $command"
+  terraform ${command} -var remote_state_bucket=${TF_VAR_remote_state_bucket} -var region=${region} -var environment=${environment} -var profile=${profile} -var shared_credentials_file=${SHARED_CREDENTIALS_FILE} ${options}
+}
+
 
 # ensure we're executing in the correct directory
 SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
@@ -170,15 +175,12 @@ then
     if aws s3api head-bucket --profile $profile --bucket $TF_VAR_remote_state_bucket 2>/dev/null; then
       # If the bucket exists, execute this block
       echo "Bucket ${TF_VAR_remote_state_bucket} already exists. Stopping bucket creation."
-      # Add your code here for when the bucket exists
-      exit 1
     else
       echo "Bucket ${TF_VAR_remote_state_bucket} does not exist and will be created."
+      run_terraform_command
     fi
   else
     echo "Executing standard Terraform command."
+    run_terraform_command
   fi
-
-  echo "Running terraform command: $command"
-  terraform ${command} -var remote_state_bucket=${TF_VAR_remote_state_bucket} -var region=${region} -var environment=${environment} -var profile=${profile} -var shared_credentials_file=${SHARED_CREDENTIALS_FILE} ${options}
 fi
