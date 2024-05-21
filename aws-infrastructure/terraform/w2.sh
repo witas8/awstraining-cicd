@@ -165,13 +165,18 @@ terraform init -backend-config "bucket=${TF_VAR_remote_state_bucket}" -backend-c
 if [ "$command" != "init" ]
 then
   if [[ "$command" =~ "common/general/create-remote-state-bucket" ]]; then
+    echo "Creating remote state bucket."
     # Check if the bucket exists
     if aws s3api head-bucket --profile $profile --bucket $TF_VAR_remote_state_bucket 2>/dev/null; then
-        # If the bucket exists, execute this block
-        echo "Bucket ${TF_VAR_remote_state_bucket} already exists. Stopping bucket creation."
-        # Add your code here for when the bucket exists
-        exit 1
+      # If the bucket exists, execute this block
+      echo "Bucket ${TF_VAR_remote_state_bucket} already exists. Stopping bucket creation."
+      # Add your code here for when the bucket exists
+      exit 1
+    else
+      echo "Bucket ${TF_VAR_remote_state_bucket} does not exist and will be created."
     fi
+  else
+    echo "Executing standard Terraform command."
   fi
 
   echo "Running terraform command: $command"
