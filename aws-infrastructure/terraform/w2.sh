@@ -164,6 +164,16 @@ terraform get
 terraform init -backend-config "bucket=${TF_VAR_remote_state_bucket}" -backend-config "key=${state_path}" -backend-config "region=${region}" -backend-config "profile=${profile}" -var environment=${environment} -var profile=${profile} -var remote_state_bucket=${TF_VAR_remote_state_bucket} -var region=${region} -var shared_credentials_file="${SHARED_CREDENTIALS_FILE}" -lock=true
 if [ "$command" != "init" ]
 then
+  if [[ "$command" =~ "common/general/create-remote-state-bucket" ]]; then
+    # Check if the bucket exists
+    if aws s3api head-bucket --profile $profile --bucket $TF_VAR_remote_state_bucket 2>/dev/null; then
+        # If the bucket exists, execute this block
+        echo "Bucket ${TF_VAR_remote_state_bucket} already exists. Stopping bucket creation."
+        # Add your code here for when the bucket exists
+        exit 1
+    fi
+  fi
+
   echo "Running terraform command: $command"
   terraform ${command} -var remote_state_bucket=${TF_VAR_remote_state_bucket} -var region=${region} -var environment=${environment} -var profile=${profile} -var shared_credentials_file=${SHARED_CREDENTIALS_FILE} ${options}
 fi
