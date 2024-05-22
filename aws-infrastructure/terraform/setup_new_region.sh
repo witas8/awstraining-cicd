@@ -95,7 +95,11 @@ if [ "$ACTION" = "destroy -auto-approve" ]; then
     echo "Skipping destroy - everything was already destroyed!"
   fi
 else
-  ./$SCRIPT $PROFILE $REGION common/general/create-remote-state-bucket $ACTION
+  if aws s3api head-bucket --bucket $TF_STATE_BUCKET --profile $PROFILE --region $REGION 2>/dev/null; then
+    echo "Skipping remote state bucket creation"
+  else
+    ./$SCRIPT $PROFILE $REGION common/general/create-remote-state-bucket $ACTION
+  fi
   ./$SCRIPT $PROFILE $REGION common/general/dynamo-lock $ACTION
   ./$SCRIPT $PROFILE $REGION environments/$PROFILE/$HUB/$REGION/globals $ACTION
   ./$SCRIPT $PROFILE $REGION common/networking/vpc $ACTION
