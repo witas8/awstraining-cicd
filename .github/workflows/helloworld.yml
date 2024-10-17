@@ -9,7 +9,7 @@ on:
         required: true
         type: "string"
       last_name:
-        description: "Provide your name"
+        description: "Provide your last name"
         required: true
         type: "string"
 jobs:
@@ -31,7 +31,7 @@ jobs:
           length=${#last_name}
           echo "length=$length" >> $GITHUB_OUTPUT
     outputs:
-      latest_name_length: ${{ steps.count_characters.outputs.length }}
+      last_name_length: ${{ steps.count_characters.outputs.length }}
       
   print_last_name_length:
     runs-on: ubuntu-latest
