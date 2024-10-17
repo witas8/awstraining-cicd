@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Greet
         id: greet
-        uses: witas8/aws-github-training-additional-repo@v1
+        uses: witas8/aws-github-training-additional-repo@v2
         with:
           name: ${{ matrix.name }}
       - name: Print action call output
